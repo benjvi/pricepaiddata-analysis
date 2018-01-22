@@ -13,8 +13,9 @@ import qualified Data.Text as T hiding (foldr)
 import qualified Data.Map as M
 import RSRIndex
 
-getPropertySalePairs :: [[T.Text]] -> PropertySalePairs
-getPropertySalePairs x = (generateSalePairs . parseListPropertySales) x
+getPropertySalePairs :: Either String [[T.Text]] -> PropertySalePairs
+getPropertySalePairs (Right x) = (generateSalePairs . parseListPropertySales) (Right x)
+getPropertySalePairs (Left x) = ([], M.empty)
 
 --assuming postcode suffices to identify from street level upwards
 -- we are only interested for the moment in uniquely idenitfying the properties
@@ -39,8 +40,9 @@ mapPricePaidDataToPropertySale input = AssetSale {
 		}
 	}
 
-parseListPropertySales :: [[T.Text]] -> [PropertySale]	
-parseListPropertySales strSalesList = [ mapPricePaidDataToPropertySale x | x <- strSalesList ]
+parseListPropertySales :: Either String [[T.Text]] -> [PropertySale]	
+parseListPropertySales (Right strSalesList) = [ mapPricePaidDataToPropertySale x | x <- strSalesList ]
+parseListPropertySales (Left x) = []
 
 --know we have good quality input data so 
 --we can use readTime and UTCTime instead of parseTime and Maybe UTCTime
